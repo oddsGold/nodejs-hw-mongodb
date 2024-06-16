@@ -18,6 +18,31 @@ class ContactController {
             next(e);
         }
     }
+
+    async getContact(req, res, next) {
+        try {
+            const { contactId } = req.params;
+
+            if (!contactId.match(/^[0-9a-fA-F]{24}$/)) {
+                return next(ApiError.BadRequestError(`Invalid contact ID format`));
+            }
+
+            const contact = await ContactsService.getContactById(contactId);
+
+            if (!contact) {
+                return next(ApiError.NotFoundError(`Contact with id=${contactId} not found`));
+            }
+
+            return res.status(200).json({
+                status: "success",
+                message: `Successfully found contact with id ${contactId}!`,
+                data: contact,
+            });
+        }catch (e) {
+            next(e);
+        }
+    }
+
 }
 
 export default new ContactController();
