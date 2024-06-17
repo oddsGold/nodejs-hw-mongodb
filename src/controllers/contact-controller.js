@@ -6,11 +6,11 @@ class ContactController {
             const contacts = await ContactsService.getAllContacts();
 
             if(!contacts) {
-                return next(ApiError.NotFoundError('Contacts not found'));
+                return next(ApiError.NotFoundError(404,'Contacts not found'));
             }
 
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: "Successfully found contacts!",
                 data: contacts,
             });
@@ -34,7 +34,7 @@ class ContactController {
             }
 
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: `Successfully found contact with id ${contactId}!`,
                 data: contact,
             });

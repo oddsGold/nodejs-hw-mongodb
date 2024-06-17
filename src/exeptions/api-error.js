@@ -5,15 +5,17 @@ class ApiError extends Error {
     constructor(status, message, errors = []) {
         super(message);
         this.status = status;
-        this.errors = errors;
+        if (errors.length > 0) {
+            this.errors = errors;
+        }
     }
 
-    static NotFoundError(message, errors = []) {
-        return new ApiError(404, message, errors);
+    static NotFoundError(message) {
+        return new ApiError(404, message);
     }
 
-    static BadRequestError(message, errors = []) {
-        return new ApiError(400, message, errors);
+    static BadRequestError(message) {
+        return new ApiError(400, message);
     }
     static InternalServerError(message, errors = []) {
         return new ApiError(500, message, errors);
