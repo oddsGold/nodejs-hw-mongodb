@@ -1,46 +1,77 @@
 import ContactsService from "../services/contacts.js";
-import ApiError from "../exeptions/api-error.js";
+import createHttpError from 'http-errors';
+
 class ContactController {
     async getContacts(req, res, next) {
-        try{
-            const contacts = await ContactsService.getAllContacts();
+        const contacts = await ContactsService.getAllContacts();
 
-            if(!contacts) {
-                return next(ApiError.NotFoundError('Contacts not found'));
-            }
-
-            return res.status(200).json({
-                status: 200,
-                message: "Successfully found contacts!",
-                data: contacts,
-            });
-        }catch (e) {
-            next(e);
+        if (!contacts) {
+            return next(createHttpError(404, `Contacts not found`));
         }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Successfully found contacts!",
+            data: contacts,
+        });
+
     }
 
     async getContact(req, res, next) {
-        try {
-            const { contactId } = req.params;
+        const {contactId} = req.params;
 
-            if (!contactId.match(/^[0-9a-fA-F]{24}$/)) {
-                return next(ApiError.BadRequestError(`Invalid contact ID format`));
-            }
+        const contact = await ContactsService.getContactById(contactId);
 
-            const contact = await ContactsService.getContactById(contactId);
-
-            if (!contact) {
-                return next(ApiError.NotFoundError(`Contact with id=${contactId} not found`));
-            }
-
-            return res.status(200).json({
-                status: 200,
-                message: `Successfully found contact with id ${contactId}!`,
-                data: contact,
-            });
-        }catch (e) {
-            next(e);
+        if (!contact) {
+            return next(createHttpError(404, `Contact with id=${contactId} not found`));
         }
+
+        return res.status(200).json({
+            status: 200,
+            message: `Successfully found contact with id ${contactId}!`,
+            data: contact,
+        });
+    }
+
+    async createNewContact(req, res) {
+        const data = req.body;
+
+        const contact = await ContactsService.createContact(data);
+
+        res.status(201).json({
+            status: 201,
+            message: `Successfully created a contact!`,
+            data: contact,
+        });
+    }
+
+    async patchContact(req, res, next) {
+        const { contactId } = req.params;
+        const data = req.body;
+
+        const result = await ContactsService.updateContact(contactId, data);
+
+        if (!result) {
+            return next(createHttpError(404, 'Contact not found'));
+        }
+
+        res.json({
+            status: 200,
+            message: `Successfully patched a contact!`,
+            data: result.contact,
+        });
+    }
+
+    async deleteContact(req, res, next) {
+        const { contactId } = req.params;
+
+        const contact = await ContactsService.deleteContact(contactId);
+
+        if (!contact) {
+            return next(createHttpError(404, 'Contact not found'));
+        }
+
+        res.status(204).send();
     }
 
 }

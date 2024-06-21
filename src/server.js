@@ -2,7 +2,7 @@ import express from 'express';
 import pino from 'pino-http';
 import cors from 'cors';
 import { env } from './utils/env.js';
-import router from './routers/index.js';
+import router from './routers/contacts.js';
 import { notFoundHandler, errorServerHandler } from './middlewares/error-middleware.js';
 
 const PORT = Number(env('PORT', '3000'));
