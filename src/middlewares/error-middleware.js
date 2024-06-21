@@ -1,15 +1,15 @@
-import ApiError from "../exeptions/api-error.js";
+import { HttpError } from 'http-errors';
 
 const notFoundHandler = (req, res, next) => {
     res.status(404).json({
-        message: 'Page not found',
+        message: 'Route not found',
     });
 };
 const errorServerHandler = (err, req, res, next) => {
-    if(err instanceof ApiError) {
-        return res.status(err.status).json({status: err.status, message: err.message, err: err.errors})
+    if(err instanceof HttpError) {
+        return res.status(err.status).json({status: err.status, message: err.name, data: err})
     }
-    return res.status(500).json({message: "Server error"})
+    return res.status(500).json({status: 500,  message: "Something went wrong", data: err})
 }
 
 export { notFoundHandler, errorServerHandler };
