@@ -1,32 +1,18 @@
-import { check, validationResult } from 'express-validator';
-import createHttpError from 'http-errors';
+import Joi from 'joi';
 
-export const validateContactCreate = [
-    check('name').notEmpty().withMessage('Name is required'),
-    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
-    check('email').optional().isEmail().withMessage('Valid email is required'),
-    check('isFavourite').optional(),
-    check('contactType').optional(),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return next(createHttpError(400, 'Validation failed', { errors: errors.array() }));
-        }
-        next();
-    },
-];
+export const validateContactCreate = {
+    name: Joi.string().min(3).max(20).required(),
+    phoneNumber: Joi.string().min(3).max(20).required(),
+    email:  Joi.string().email(),
+    isFavourite: Joi.boolean(),
+    contactType: Joi.string().valid('work', 'home', 'personal').required()
+};
 
-export const validateContactUpdate = [
-    check('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
-    check('phoneNumber').optional().trim().notEmpty().withMessage('Phone number cannot be empty'),
-    check('email').optional().isEmail().withMessage('Valid email is required'),
-    check('isFavourite').optional(),
-    check('contactType').optional(),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return next(createHttpError(400, 'Validation failed', { errors: errors.array() }));
-        }
-        next();
-    },
-];
+export const validateContactUpdate = {
+    name: Joi.string().min(3).max(20),
+    phoneNumber: Joi.string().min(3).max(20),
+    email:  Joi.string().email(),
+    isFavourite: Joi.boolean(),
+    contactType: Joi.string().valid('work', 'home', 'personal')
+}
+
