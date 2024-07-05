@@ -62,8 +62,9 @@ class ContactController {
     async patchContact(req, res, next) {
         const { contactId } = req.params;
         const data = req.body;
+        const userId = req.user._id;
 
-        const result = await ContactsService.updateContact(contactId, data,  req.user._id, {});
+        const result = await ContactsService.updateContact(contactId, data,  userId, {});
 
         if (!result) {
             return next(createHttpError(404, 'Contact not found'));

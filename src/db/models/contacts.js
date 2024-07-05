@@ -45,7 +45,7 @@ const contactsSchema = new Schema(
 
 contactsSchema.post("save", mongooseSaveError );
 
-contactsSchema.pre("findOneAndUpdate", setUpdateSettings)
+// contactsSchema.pre("findOneAndUpdate", setUpdateSettings)
 
 contactsSchema.post("findOneAndUpdate", mongooseSaveError );
 export const ContactsCollection = model('contacts', contactsSchema);

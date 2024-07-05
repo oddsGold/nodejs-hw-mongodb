@@ -1,6 +1,7 @@
 import { ContactsCollection } from "../db/models/contacts.js"
 import {calculatePaginationData} from "../utils/calculatePaginationData.js";
 import {SORT_ORDER} from "../constants/index.js";
+import { ObjectId } from "mongodb";
 
 class ContactsService {
     async getAllContacts({ page, perPage, sortOrder = SORT_ORDER.ASC, sortBy = '_id',filter = {}, userId}) {
@@ -42,10 +43,12 @@ class ContactsService {
         const res = await ContactsCollection.findOneAndUpdate(
             {
                 _id: id,
-                userId: userId
+                userId
             },
             data,
             {
+                runValidators: true,
+                new: true,
                 includeResultMetadata: true,
                 ...options,
             }
