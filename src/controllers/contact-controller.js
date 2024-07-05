@@ -16,6 +16,7 @@ class ContactController {
             sortBy,
             sortOrder,
             filter,
+            userId: req.user._id
         });
 
         if (!contacts) {
@@ -33,7 +34,7 @@ class ContactController {
     async getContact(req, res, next) {
         const {contactId} = req.params;
 
-        const contact = await ContactsService.getContactById(contactId);
+        const contact = await ContactsService.getContactById(contactId, req.user._id);
 
         if (!contact) {
             return next(createHttpError(404, `Contact with id=${contactId} not found`));
@@ -49,7 +50,7 @@ class ContactController {
     async createNewContact(req, res) {
         const data = req.body;
 
-        const contact = await ContactsService.createContact(data);
+        const contact = await ContactsService.createContact(data, req.user._id);
 
         res.status(201).json({
             status: 201,
@@ -62,7 +63,7 @@ class ContactController {
         const { contactId } = req.params;
         const data = req.body;
 
-        const result = await ContactsService.updateContact(contactId, data);
+        const result = await ContactsService.updateContact(contactId, data,  req.user._id, {});
 
         if (!result) {
             return next(createHttpError(404, 'Contact not found'));
@@ -78,7 +79,7 @@ class ContactController {
     async deleteContact(req, res, next) {
         const { contactId } = req.params;
 
-        const contact = await ContactsService.deleteContact(contactId);
+        const contact = await ContactsService.deleteContact(contactId, req.user._id);
 
         if (!contact) {
             return next(createHttpError(404, 'Contact not found'));

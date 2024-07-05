@@ -3,11 +3,11 @@ import {calculatePaginationData} from "../utils/calculatePaginationData.js";
 import {SORT_ORDER} from "../constants/index.js";
 
 class ContactsService {
-    async getAllContacts({ page, perPage, sortOrder = SORT_ORDER.ASC, sortBy = '_id',filter = {}}) {
+    async getAllContacts({ page, perPage, sortOrder = SORT_ORDER.ASC, sortBy = '_id',filter = {}, userId}) {
         const limit = perPage;
         const skip = (page - 1) * perPage;
 
-        const contactsQuery = ContactsCollection.find();
+        const contactsQuery = ContactsCollection.find({userId: userId});
 
         if (filter.type) {
             contactsQuery.where('contactType').equals(filter.type);
@@ -27,19 +27,23 @@ class ContactsService {
             ...paginationData,
         };
     }
-    async getContactById(contactId) {
-        const contact = await ContactsCollection.findById(contactId);
+    async getContactById(contactId, userId) {
+        const contact = await ContactsCollection.findOne({_id: contactId, userId});
         return contact;
     }
 
-    async createContact(data) {
-        const contact = await ContactsCollection.create(data);
+    async createContact(data, userId) {
+        const contactData = { ...data, userId: userId };
+        const contact = await ContactsCollection.create(contactData);
         return contact;
     }
 
-    async updateContact(id, data, options = {}){
+    async updateContact(id, data, userId, options = {}){
         const res = await ContactsCollection.findOneAndUpdate(
-            {_id: id},
+            {
+                _id: id,
+                userId: userId
+            },
             data,
             {
                 includeResultMetadata: true,
@@ -55,9 +59,10 @@ class ContactsService {
         };
     }
 
-    async deleteContact(id) {
+    async deleteContact(id, userId) {
         const contact = await ContactsCollection.findOneAndDelete({
             _id: id,
+            userId
         });
 
         return contact;
