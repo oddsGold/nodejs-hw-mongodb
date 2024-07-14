@@ -3,6 +3,8 @@ import createHttpError from 'http-errors';
 import {parsePaginationParams} from "../utils/parsePaginationParams.js";
 import {parseSortParams} from "../utils/parseSortParams.js";
 import {parseFilterParams} from "../utils/parseFilterParams.js";
+import { env } from '../utils/env.js';
+import FileService from "../utils/file-service.js"
 
 class ContactController {
     async getContacts(req, res, next) {
@@ -49,6 +51,18 @@ class ContactController {
 
     async createNewContact(req, res) {
         const data = req.body;
+        const photo = req.file;
+
+        let photoUrl;
+
+        if (photo) {
+            if (env('ENABLE_CLOUDINARY') === 'true') {
+                photoUrl = await FileService.saveFileToCloudinary(photo);
+            } else {
+                photoUrl = await FileService.saveFileToUploadDir(photo);
+            }
+            data.photo = photoUrl;
+        }
 
         const contact = await ContactsService.createContact(data, req.user._id);
 
@@ -63,6 +77,18 @@ class ContactController {
         const { contactId } = req.params;
         const data = req.body;
         const userId = req.user._id;
+        const photo = req.file;
+
+        let photoUrl;
+
+        if (photo) {
+            if (env('ENABLE_CLOUDINARY') === 'true') {
+                photoUrl = await FileService.saveFileToCloudinary(photo);
+            } else {
+                photoUrl = await FileService.saveFileToUploadDir(photo);
+            }
+            data.photo = photoUrl;
+        }
 
         const result = await ContactsService.updateContact(contactId, data,  userId, {});
 

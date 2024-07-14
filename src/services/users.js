@@ -3,6 +3,7 @@ import UserDto from "../dtos/user-dto.js";
 import TokensService from "../services/tokens.js"
 import createHttpError from "http-errors";
 import {SessionsCollection} from "../db/models/session.js";
+import MailService from "../utils/mail-service.js";
 
 class UsersService {
 
@@ -53,6 +54,20 @@ class UsersService {
         await SessionsCollection.deleteOne({_id: sessionId, refreshToken});
 
         return await TokensService.saveToken(user._id, tokens);
+    }
+
+    async resetToken(user) {
+        const email = user.email;
+        const resetToken = TokensService.generateResetToken({email});
+
+        await MailService.sendEmail(email, resetToken);
+    }
+
+    async resetPassword(id, password) {
+        await UsersCollection.updateOne(
+            {_id:id},
+            {password}
+        )
     }
 }
 

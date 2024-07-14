@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import {SessionsCollection} from "../db/models/session.js";
 import {FIFTEEN_MINUTES, THIRTY_DAYS} from "../constants/index.js";
 import createHttpError from "http-errors";
+import {env} from "../utils/env.js";
 
 class TokensService {
     generateToken(payload) {
@@ -12,6 +13,12 @@ class TokensService {
             accessToken,
             refreshToken
         }
+    }
+
+    generateResetToken(payload) {
+        const resetToken = jwt.sign(payload, process.env.JWT_MAIL_SECRET, {expiresIn: '5m'})
+
+        return resetToken;
     }
 
     async saveToken(id, tokens) {
@@ -49,6 +56,16 @@ class TokensService {
             return userData;
         }catch (e) {
             return null
+        }
+    }
+
+    validateResetToken(token) {
+        try{
+            const entries = jwt.verify(token, process.env.JWT_MAIL_SECRET);
+            return entries;
+        }catch (err) {
+            if (err instanceof Error) throw createHttpError(401, 'Token is expired or invalid.');
+            throw err;
         }
     }
 
