@@ -7,6 +7,7 @@ import router from './routers/contacts.js';
 import authRouter from './routers/auth.js';
 import { notFoundHandler, errorServerHandler } from './middlewares/error-middleware.js';
 import { UPLOAD_DIR } from './constants/index.js';
+import {swaggerDocs} from "./middlewares/swaggerDocs.js";
 
 const PORT = Number(env('PORT', '3000'));
 
@@ -18,9 +19,10 @@ export const setupServer = () => {
     app.use(cors());
     app.use('/', router);
     app.use('/auth', authRouter);
+    app.use('/api-docs', swaggerDocs());
+    app.use('/uploads', express.static(UPLOAD_DIR));
     app.use(notFoundHandler);
     app.use(errorServerHandler);
-    app.use('/uploads', express.static(UPLOAD_DIR));
 
     app.use(
         pino({
